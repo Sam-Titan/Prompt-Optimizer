@@ -1,3 +1,16 @@
-# Ignore all .env files anywhere in the project
-**/.env
+# --- Backend Configurations ---
+backend/Config.py
+
+# --- Virtual Environments ---
+backend/env/
+env/
+venv/
+
+# --- Python Cache Files ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Environment Variables ---
 .env
+**/.env
