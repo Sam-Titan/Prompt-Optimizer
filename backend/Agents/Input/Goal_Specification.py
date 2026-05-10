@@ -34,7 +34,7 @@ Confidence: <high/medium/low>
 Rules:
 - Keep response under {tokens} tokens.
 - Be specific.
-- If ambiguity exists, reflect it in confidence instead of guessing wildly.
+- If ambiguity exists, reflect it in confidence.
 """
 
     messages = [

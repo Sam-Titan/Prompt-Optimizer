@@ -1,7 +1,17 @@
 # Building a Prompt Optimization Engine
 
-## Goal Specification Agent
+## Input
+### Goal Specification Agent
 
-## Token Estimation Agent
+I have built this Agent to determine the End Goal of the user if it is undetermined or vague. 
+If the Goal is too vague the agent is designed to ask the User again for the prompt
 
-TALE-EP (Token-Aware Learning + Estimation Prompting), we will determine the tokens needed.
+## Token Allocation
+### Token Estimation Agent
+
+Through TALE-EP (Token-Aware Learning + Estimation Prompting), the system will determine the tokens needed for the end prompt.
+
+This Agent will utilize the Step 1 of the method
+
+## Structuring
+### Context
