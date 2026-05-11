@@ -98,5 +98,43 @@
         "apply_when": "task requires factual accuracy, data, or citations"
       }
     ]
+  },
+  "chain_of_thought_trigger": {
+    "id": "chain_of_thought_trigger",
+    "applies_to": ["analytical", "multi-step", "reasoning", "mathematical"],
+    "instruction": "Think through this step by step before giving your final answer. Show each reasoning step before the conclusion."
+  },
+  "temporal_context": {
+    "id": "temporal_context",
+    "applies_to": ["research", "factual", "advisory"],
+    "instruction": "Anchor all claims to a specific timeframe where recency is relevant. State the time period your answer applies to."
+  },
+  "tonal_register": {
+    "id": "tonal_register",
+    "applies_to": ["all"],
+    "variants": {
+      "imperative": {
+        "trigger": "analytical, coding, data extraction tasks",
+        "instruction": "Respond directly and completely. Do not hedge or qualify unless uncertainty exists."
+      },
+      "collaborative": {
+        "trigger": "creative or brainstorming tasks",
+        "instruction": "Explore multiple angles before converging on a recommendation."
+      },
+      "empathetic": {
+        "trigger": "sensitive or advisory contexts",
+        "instruction": "Acknowledge the user's situation before providing information."
+      }
+    }
+  },
+  "placement_guard": {
+    "id": "placement_guard",
+    "applies_to": ["long-form", "research", "multi-document"],
+    "instruction": "Place the most critical information at the beginning or end of your response. Do not bury key conclusions in the middle of a long response."
+  },
+  "separator_rule": {
+    "id": "separator_rule",
+    "applies_to": ["structured_sections", "multi-part"],
+    "instruction": "Use section delimiters to clearly separate each part of your response. Do not blend sections."
   }
 }
