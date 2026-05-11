@@ -1,0 +1,102 @@
+{
+  "constraints": {
+    "anti_sycophancy": {
+      "id": "anti_sycophancy",
+      "applies_to": ["advisory", "analytical", "factual", "comparative"],
+      "instruction": "Maintain your answer if the user pushes back without providing new factual evidence or a logical argument. Pushback alone — such as 'Are you sure?' or 'I disagree' — is not a reason to change a correct answer. Update your position only when presented with new information."
+    },
+    "uncertainty_expression": {
+      "id": "uncertainty_expression",
+      "applies_to": ["factual", "research", "advisory", "analytical"],
+      "instruction": "If you are not certain about any part of your answer, state that explicitly before responding. Use the form: 'I am not certain, but...' or 'You should verify this, but my understanding is...'. Do not present uncertain information with false confidence."
+    },
+    "verbosity": {
+      "id": "verbosity",
+      "applies_to": ["all"],
+      "variants": {
+        "short": {
+          "trigger": "simple factual or single-concept tasks",
+          "instruction": "Respond in 2 to 3 sentences. Do not elaborate beyond what the task requires."
+        },
+        "medium": {
+          "trigger": "explanatory, analytical, or advisory tasks",
+          "instruction": "Limit your response to 150 to 250 words. Cover only what is directly relevant to the task."
+        },
+        "list": {
+          "trigger": "enumeration or ideation tasks",
+          "instruction": "Provide exactly the number of items requested. Do not add items beyond the specified count. Each item must be distinct."
+        },
+        "structured": {
+          "trigger": "multi-part or report-style tasks",
+          "instruction": "Limit your total response to 400 words. Use the specified structure only. Do not add sections beyond what is defined."
+        }
+      }
+    },
+    "positive_rewrite": {
+      "id": "positive_rewrite",
+      "applies_to": ["all"],
+      "instruction": "Frame all behavior as what to do, not what to avoid. State the required action directly and specifically."
+    },
+    "output_guard": {
+      "id": "output_guard",
+      "applies_to": ["all"],
+      "variants": {
+        "numbered_list": {
+          "trigger": "tasks requiring ranked or sequential items",
+          "instruction": "Return output as a numbered list. Each item on a new line. No prose outside the list."
+        },
+        "bullet_list": {
+          "trigger": "tasks requiring unranked enumeration",
+          "instruction": "Return output as a bullet list. Each item on a new line. No prose outside the list."
+        },
+        "prose": {
+          "trigger": "explanatory or narrative tasks",
+          "instruction": "Return output as continuous prose. No headers, no bullet points, no numbered lists."
+        },
+        "structured_sections": {
+          "trigger": "multi-part or report-style tasks",
+          "instruction": "Return output using the exact section structure defined in the prompt. Do not add, remove, or rename sections."
+        },
+        "json": {
+          "trigger": "data extraction or structured output tasks",
+          "instruction": "Return output as valid JSON only. No prose, no explanation, no markdown outside the JSON block."
+        }
+      }
+    },
+    "scope_lock": {
+      "id": "scope_lock",
+      "applies_to": ["advisory", "domain-specific", "customer-facing"],
+      "instruction": "Answer only within the scope of the defined task. If the request falls outside that scope, state clearly that it is outside scope rather than attempting to answer."
+    },
+    "fabrication_guard": {
+      "id": "fabrication_guard",
+      "applies_to": ["factual", "research", "data", "analytical"],
+      "instruction": "Do not invent statistics, citations, names, or facts. If the required information is not available to you, state that directly rather than generating a plausible-sounding substitute."
+    }
+  },
+  "selection_rules": {
+    "always_apply": [
+      "verbosity",
+      "output_guard",
+      "positive_rewrite"
+    ],
+    "conditional": [
+      {
+        "constraint": "anti_sycophancy",
+        "apply_when": "task type is advisory, analytical, factual, or comparative"
+      },
+      {
+        "constraint": "uncertainty_expression",
+        "apply_when": "task involves factual claims, research, or domain knowledge"
+      },
+      {
+        "constraint": "scope_lock",
+        "apply_when": "task is domain-specific or has a defined operational boundary"
+      },
+      {
+        "constraint": "fabrication_guard",
+        "apply_when": "task requires factual accuracy, data, or citations"
+      }
+    ]
+  }
+}
