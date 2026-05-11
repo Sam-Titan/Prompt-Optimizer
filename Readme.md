@@ -18,3 +18,8 @@ This Agent will utilize the Step 1 of the method
 
 I have built this Agent to determine the Context regarding the user Query. 
 It's Schema consists of Domain, Audience, Constraints, and Tone.
+
+### Instructions Agent
+
+I have built this Agent to determine the base Intruction regarding the user Query. 
+It's Schema consists of Instruction and Action Verb.
