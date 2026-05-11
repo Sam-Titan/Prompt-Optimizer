@@ -23,3 +23,8 @@ It's Schema consists of Domain, Audience, Constraints, and Tone.
 
 I have built this Agent to determine the base Intruction regarding the user Query. 
 It's Schema consists of Instruction and Action Verb.
+
+### Examples Agent
+
+I have built this Agent to determine the Examples regarding the user Query. 
+It's Schema consists of Examples Needed and Examples.
