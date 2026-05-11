@@ -1,8 +1,6 @@
 from langchain_groq import ChatGroq
 from pydantic import BaseModel, Field
 from backend.Agents.Input.Goal_Specification import goal_specification
-import os 
-from typing import Optional
 
 def Instruction(query, Estimation_Tokens):
     class Output_Schema(BaseModel):
@@ -65,7 +63,6 @@ def Instruction(query, Estimation_Tokens):
         print(f"Exception occured {e}. Please retry again.")
         return False
     
-
 if __name__ == "__main__":
     response = goal_specification("I want 5 great business Ideas for the real world", 100)
     if response == False:
