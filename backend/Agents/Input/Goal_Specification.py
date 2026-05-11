@@ -11,7 +11,7 @@ def goal_specification(query, tokens):
         confidence: str = Field(description="Confidence score")
 
     model = ChatGroq(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         temperature=0,
         max_tokens = tokens,
         timeout=30,
@@ -19,22 +19,12 @@ def goal_specification(query, tokens):
     )
 
     response_structure = model.with_structured_output(OutputSchema)
-    system_prompt = f"""
-You are a Goal Extraction Agent.
-
-Your task:
-- Extract the user's TRUE underlying goal from their query.
-- If the query is vague or uncertain, infer the MOST LIKELY goal.
-- Do NOT repeat the query.
-
-Output format (STRICT):
-Goal: <one clear sentence>
-Confidence: <high/medium/low>
-
-Rules:
-- Keep response under {tokens} tokens.
-- Be specific.
-- If ambiguity exists, reflect it in confidence.
+    system_prompt = f"""You are a Goal Extraction Agent.
+Extract ONLY the user's underlying goal as one sentence.
+Do NOT answer, solve, or respond to the query.
+Do NOT include examples, lists, or solutions.
+Preserve all specific details from the query (numbers, quantities, formats).
+Output the goal and a confidence score (high/medium/low) only in structured format.
 """
 
     messages = [
@@ -44,15 +34,13 @@ Rules:
 
     try:
         Goal = response_structure.invoke(messages)
-    except TimeoutError:
-        return "The LLM model timed out. Retry Again!"
-    
-    if Goal.confidence == "low":
-        return False
-    else:
-        return Goal.answer
-    
+        if Goal.confidence == "low":
+            return False
+        else:
+            return Goal.answer
+    except Exception as e:
+        return f"Exception Occured: {e}. Retry Again!"    
 
 if __name__ == "__main__":
-    response = goal_specification("I am not sure.", 100)
+    response = goal_specification("I want you to give me five great Business Ideas for India.", 100)
     print(response)
