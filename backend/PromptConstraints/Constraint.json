@@ -4,8 +4,7 @@
       "State your answer directly without preamble, affirmation, or filler phrases.",
       "Use concrete and measurable language throughout. Replace vague terms with exact values.",
       "Maintain your answer unless presented with new factual evidence or a logical argument not previously considered.",
-      "When you are not confident in an answer, state it explicitly before giving the answer.",
-      "State only facts that are directly inferable from the provided context."
+      "When you are not confident in an answer, state it explicitly before giving the answer."
     ],
     "conditional": {
       "complexity_high": {
