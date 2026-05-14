@@ -1,4 +1,3 @@
-from langchain_groq import ChatGroq
 from backend.Agents.Input.Goal_Specification import goal_specification
 from backend.Agents.TokenAllocation.Token_Allocation import Token_Estimation
 from backend.Agents.Structuring.Context import context
@@ -54,8 +53,16 @@ def Deterministic_Constraints(query, tokens, query_output, examples_output):
         if condition and key in conditional_data:
             active_constraints.append(conditional_data[key]["constraint"])
 
-    print(f"Debug — complexity: {complexity}, query_type: {query_type}, is_complete: {is_complete}, examples_needed: {examples_needed}")
     return active_constraints
+
+def assembler(Instruction, Context, Example, Query, Constraints):
+    Optimized_prompt = f"""Instruction: {Instruction},
+\nContext: {Context},
+\nConstraints: {Constraints},
+\nExample (True or False): {Example},
+\nQuery: {Query}.
+"""
+    return Optimized_prompt
 
 if __name__ == "__main__":
     response = goal_specification("I want 5 great business Ideas for the real world", 100)
@@ -65,4 +72,7 @@ if __name__ == "__main__":
         query_output = Query(response, 100)
         examples_output = Examples(response, 200)
         Constraints = Deterministic_Constraints(response, 30, query_output, examples_output)
-        print(Constraints)
+        instruction = Instruction(response, 300)
+        Context = context(response, 300)
+        prompt = assembler(instruction, Context, examples_output, query_output, Constraints)
+        print(prompt)
