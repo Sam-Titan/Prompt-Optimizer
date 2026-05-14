@@ -1,140 +1,57 @@
 {
-  "constraints": {
-    "anti_sycophancy": {
-      "id": "anti_sycophancy",
-      "applies_to": ["advisory", "analytical", "factual", "comparative"],
-      "instruction": "Maintain your answer if the user pushes back without providing new factual evidence or a logical argument. Pushback alone — such as 'Are you sure?' or 'I disagree' — is not a reason to change a correct answer. Update your position only when presented with new information."
-    },
-    "uncertainty_expression": {
-      "id": "uncertainty_expression",
-      "applies_to": ["factual", "research", "advisory", "analytical"],
-      "instruction": "If you are not certain about any part of your answer, state that explicitly before responding. Use the form: 'I am not certain, but...' or 'You should verify this, but my understanding is...'. Do not present uncertain information with false confidence."
+  "prompt_constraints": {
+    "universal": [
+      "State your answer directly without preamble, affirmation, or filler phrases.",
+      "Use concrete and measurable language throughout. Replace vague terms with exact values.",
+      "Maintain your answer unless presented with new factual evidence or a logical argument not previously considered.",
+      "When you are not confident in an answer, state it explicitly before giving the answer.",
+      "State only facts that are directly inferable from the provided context."
+    ],
+    "conditional": {
+      "complexity_high": {
+        "trigger": "Complexity >= 7",
+        "constraint": "State all intermediate reasoning steps before giving the final answer. Verify each step before proceeding to the next."
+      },
+      "complexity_low": {
+        "trigger": "Complexity <= 3",
+        "constraint": "Answer directly and concisely. Do not over-explain."
+      },
+      "query_type_factual": {
+        "trigger": "query_type == factual",
+        "constraint": "State only facts that are directly inferable from the provided context. State I do not know when the required information is absent."
+      },
+      "query_type_creative": {
+        "trigger": "query_type == creative",
+        "constraint": "Explore the full range of the instruction without defaulting to the most common interpretation."
+      },
+      "query_type_analytical": {
+        "trigger": "query_type == analytical",
+        "constraint": "Break the problem into components and address each independently before stating the final conclusion."
+      },
+      "query_type_comparative": {
+        "trigger": "query_type == comparative",
+        "constraint": "Evaluate each item against the same criteria before drawing a conclusion."
+      },
+      "query_type_data_extraction": {
+        "trigger": "query_type == data-extraction",
+        "constraint": "Return output that strictly matches the specified schema with no prose outside the schema."
+      },
+      "query_type_multi_step": {
+        "trigger": "query_type == multi-step",
+        "constraint": "Complete each step in sequence. State the output of each step before proceeding to the next."
+      },
+      "examples_present": {
+        "trigger": "examples_needed == true",
+        "constraint": "Follow the pattern demonstrated in the examples exactly. Generalise from the examples to the given input."
+      },
+      "incomplete_query": {
+        "trigger": "is_complete == false",
+        "constraint": "State what information is missing before attempting an answer."
+      }
     },
     "verbosity": {
-      "id": "verbosity",
-      "applies_to": ["all"],
-      "variants": {
-        "short": {
-          "trigger": "simple factual or single-concept tasks",
-          "instruction": "Respond in 2 to 3 sentences. Do not elaborate beyond what the task requires."
-        },
-        "medium": {
-          "trigger": "explanatory, analytical, or advisory tasks",
-          "instruction": "Limit your response to 150 to 250 words. Cover only what is directly relevant to the task."
-        },
-        "list": {
-          "trigger": "enumeration or ideation tasks",
-          "instruction": "Provide exactly the number of items requested. Do not add items beyond the specified count. Each item must be distinct."
-        },
-        "structured": {
-          "trigger": "multi-part or report-style tasks",
-          "instruction": "Limit your total response to 400 words. Use the specified structure only. Do not add sections beyond what is defined."
-        }
-      }
-    },
-    "positive_rewrite": {
-      "id": "positive_rewrite",
-      "applies_to": ["all"],
-      "instruction": "Frame all behavior as what to do, not what to avoid. State the required action directly and specifically."
-    },
-    "output_guard": {
-      "id": "output_guard",
-      "applies_to": ["all"],
-      "variants": {
-        "numbered_list": {
-          "trigger": "tasks requiring ranked or sequential items",
-          "instruction": "Return output as a numbered list. Each item on a new line. No prose outside the list."
-        },
-        "bullet_list": {
-          "trigger": "tasks requiring unranked enumeration",
-          "instruction": "Return output as a bullet list. Each item on a new line. No prose outside the list."
-        },
-        "prose": {
-          "trigger": "explanatory or narrative tasks",
-          "instruction": "Return output as continuous prose. No headers, no bullet points, no numbered lists."
-        },
-        "structured_sections": {
-          "trigger": "multi-part or report-style tasks",
-          "instruction": "Return output using the exact section structure defined in the prompt. Do not add, remove, or rename sections."
-        },
-        "json": {
-          "trigger": "data extraction or structured output tasks",
-          "instruction": "Return output as valid JSON only. No prose, no explanation, no markdown outside the JSON block."
-        }
-      }
-    },
-    "scope_lock": {
-      "id": "scope_lock",
-      "applies_to": ["advisory", "domain-specific", "customer-facing"],
-      "instruction": "Answer only within the scope of the defined task. If the request falls outside that scope, state clearly that it is outside scope rather than attempting to answer."
-    },
-    "fabrication_guard": {
-      "id": "fabrication_guard",
-      "applies_to": ["factual", "research", "data", "analytical"],
-      "instruction": "Do not invent statistics, citations, names, or facts. If the required information is not available to you, state that directly rather than generating a plausible-sounding substitute."
+      "trigger": "always",
+      "constraint": "Limit the response to [TOKENS] tokens."
     }
-  },
-  "selection_rules": {
-    "always_apply": [
-      "verbosity",
-      "output_guard",
-      "positive_rewrite"
-    ],
-    "conditional": [
-      {
-        "constraint": "anti_sycophancy",
-        "apply_when": "task type is advisory, analytical, factual, or comparative"
-      },
-      {
-        "constraint": "uncertainty_expression",
-        "apply_when": "task involves factual claims, research, or domain knowledge"
-      },
-      {
-        "constraint": "scope_lock",
-        "apply_when": "task is domain-specific or has a defined operational boundary"
-      },
-      {
-        "constraint": "fabrication_guard",
-        "apply_when": "task requires factual accuracy, data, or citations"
-      }
-    ]
-  },
-  "chain_of_thought_trigger": {
-    "id": "chain_of_thought_trigger",
-    "applies_to": ["analytical", "multi-step", "reasoning", "mathematical"],
-    "instruction": "Think through this step by step before giving your final answer. Show each reasoning step before the conclusion."
-  },
-  "temporal_context": {
-    "id": "temporal_context",
-    "applies_to": ["research", "factual", "advisory"],
-    "instruction": "Anchor all claims to a specific timeframe where recency is relevant. State the time period your answer applies to."
-  },
-  "tonal_register": {
-    "id": "tonal_register",
-    "applies_to": ["all"],
-    "variants": {
-      "imperative": {
-        "trigger": "analytical, coding, data extraction tasks",
-        "instruction": "Respond directly and completely. Do not hedge or qualify unless uncertainty exists."
-      },
-      "collaborative": {
-        "trigger": "creative or brainstorming tasks",
-        "instruction": "Explore multiple angles before converging on a recommendation."
-      },
-      "empathetic": {
-        "trigger": "sensitive or advisory contexts",
-        "instruction": "Acknowledge the user's situation before providing information."
-      }
-    }
-  },
-  "placement_guard": {
-    "id": "placement_guard",
-    "applies_to": ["long-form", "research", "multi-document"],
-    "instruction": "Place the most critical information at the beginning or end of your response. Do not bury key conclusions in the middle of a long response."
-  },
-  "separator_rule": {
-    "id": "separator_rule",
-    "applies_to": ["structured_sections", "multi-part"],
-    "instruction": "Use section delimiters to clearly separate each part of your response. Do not blend sections."
   }
 }
