@@ -17,13 +17,13 @@ def Token_Estimation(query, Estimation_Tokens):
     )
     response_structure = model.with_structured_output(Output_Schema)
 
-    token_prompt = """Estimate the complexity of the following task on a scale of 1–10,
+    token_prompt = f"""Estimate the complexity of the following task on a scale of 1–10,
     and estimate how many reasoning tokens are needed (1 = ~50 tokens, 10 = ~2000 tokens).
 
     Respond only in this format:
     complexity: N, tokens: N
 
-    Task: f{query} """
+    Task: {query} """
 
     try:
         response = response_structure.invoke(token_prompt)
