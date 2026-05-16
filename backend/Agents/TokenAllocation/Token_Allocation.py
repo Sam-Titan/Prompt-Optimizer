@@ -39,7 +39,7 @@ def Token_Estimation(query, Estimation_Tokens):
     return Determined_Complexity, Tokens_Required
 
 if __name__ == "__main__":
-    response = goal_specification("I want to find the mountain or something similar. I am not sure.", 100)
+    response = goal_specification("I want to climb a mountain.", 100)
     if response == False:
         print("The Goal is not specified")
     else:
