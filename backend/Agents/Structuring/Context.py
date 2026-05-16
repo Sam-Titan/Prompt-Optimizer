@@ -1,7 +1,6 @@
 from langchain_groq import ChatGroq
 from pydantic import BaseModel
 from backend.Agents.Input.Goal_Specification import goal_specification
-import os 
 from typing import Optional
 
 def context(query, Estimation_Tokens):

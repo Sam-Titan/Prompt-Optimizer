@@ -6,9 +6,7 @@ from backend.Agents.Structuring.Examples import Examples
 from backend.Agents.Structuring.Query import Query
 import json
 
-def Deterministic_Constraints(query, tokens, query_output, examples_output):
-    complexity, tokens_required = Token_Estimation(query, tokens)
-
+def Deterministic_Constraints(complexity, tokens_required, query_output, examples_output):
     with open("backend/PromptConstraints/Constraint.json", mode="r") as f:
         data = json.load(f)
 
@@ -55,24 +53,59 @@ def Deterministic_Constraints(query, tokens, query_output, examples_output):
 
     return active_constraints
 
-def assembler(Instruction, Context, Example, Query, Constraints):
-    Optimized_prompt = f"""Instruction: {Instruction},
-\nContext: {Context},
-\nConstraints: {Constraints},
-\nExample (True or False): {Example},
-\nQuery: {Query}.
-"""
-    return Optimized_prompt
+
+def assembler(instruction, context_output, examples_output, query_output, constraints):
+    instruction_clean = None
+    query_clean = None
+    examples_needed = False
+    examples_clean = None
+
+    if instruction:
+        for line in instruction.split("\n"):
+            if line.startswith("Instruction:"):
+                instruction_clean = line.split(":", 1)[1].strip()
+
+    if query_output:
+        for line in query_output.split("\n"):
+            if line.startswith("Query:"):
+                query_clean = line.split(":", 1)[1].strip()
+            if line.startswith("Examples Needed:"):
+                examples_needed = line.split(":", 1)[1].strip().lower() == "true"
+
+    if examples_output:
+        for line in examples_output.split("\n"):
+            if line.startswith("Examples Needed:"):
+                examples_needed = line.split(":", 1)[1].strip().lower() == "true"
+            if line.startswith("Examples:"):
+                examples_clean = line.split(":", 1)[1].strip()
+
+    constraints_text = "\n".join([f"- {c}" for c in constraints])
+
+    sections = []
+    sections.append(f"Instruction:\n{instruction_clean}")
+    sections.append(f"Context:\n{context_output}")
+
+    if examples_needed and examples_clean:
+        sections.append(f"Examples:\n{examples_clean}")
+
+    sections.append(f"Query:\n{query_clean}")
+    sections.append(f"Constraints:\n{constraints_text}")
+
+    optimized_prompt = "\n\n".join(sections)
+    return optimized_prompt
+
 
 if __name__ == "__main__":
     response = goal_specification("I want 5 great business Ideas for the real world", 100)
     if response == False:
         print("The Goal is not specified")
     else:
-        query_output = Query(response, 100)
-        examples_output = Examples(response, 200)
-        Constraints = Deterministic_Constraints(response, 30, query_output, examples_output)
-        instruction = Instruction(response, 300)
-        Context = context(response, 300)
-        prompt = assembler(instruction, Context, examples_output, query_output, Constraints)
+        complexity, tokens_required = Token_Estimation(response, 100)
+        query_output = Query(response, tokens_required)
+        examples_output = Examples(response, tokens_required)
+        constraints = Deterministic_Constraints(complexity, tokens_required, query_output, examples_output)
+        instruction = Instruction(response, tokens_required)
+        context_output = context(response, tokens_required)
+        prompt = assembler(instruction, context_output, examples_output, query_output, constraints)
         print(prompt)
+        

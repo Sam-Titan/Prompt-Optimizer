@@ -53,7 +53,7 @@ def Examples(query, Estimation_Tokens):
 
     try:
         response = response_structure.invoke(messages)
-        combined_response = f"Examples Needed: {response.examples_needed}\nExamples{response.examples}"
+        combined_response = f"Examples Needed: {response.examples_needed}\nExamples: {response.examples}"
         if len(combined_response) < 20:
             print("Length of the response is too low")
             return False
