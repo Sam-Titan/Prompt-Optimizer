@@ -4,8 +4,10 @@ from backend.Agents.Input.Goal_Specification import goal_specification
 
 def Instruction(query, Estimation_Tokens):
     class Output_Schema(BaseModel):
+        role: str = Field(description="The persona or expert role the LLM should adopt")
         instruction: str = Field(description="The primary directive for the LLM")
-        action_verb: str = Field(description="The leading action verb (Write, Analyze, Generate etc.)")
+        action_verb: str = Field(description="The leading action verb")
+        output_indicator: str = Field(description="The exact format and structure the output must follow")
 
     model = ChatGroq(
         model="llama-3.3-70b-versatile",
@@ -17,34 +19,34 @@ def Instruction(query, Estimation_Tokens):
 
     response_structure = model.with_structured_output(Output_Schema)
 
-    system_prompt = f"""
-    You are an Instruction Agent operating inside a prompt engineering pipeline.
+    system_prompt = """
+You are an Instruction Agent operating inside a prompt engineering pipeline.
 
-    Your job:
-    Given a user goal, generate the core instruction a prompt engineer needs
-    to build an effective prompt.
+Your job:
+Given a user goal, generate four things:
 
-    The instruction means:
-    - What exact task should the LLM perform?
-    - What is the clearest actionable directive?
-    - What is the primary action verb?
+1. Role: The expert persona the LLM should adopt to answer this goal most effectively.
+   - Format: "Act as a [specific expert title] with expertise in [specific domain]."
+   - Be specific. Not "an expert" but "a senior business strategist specialising in emerging market entry."
 
-    Rules:
-    - Start the instruction with a strong action verb.
-    - Preserve the user's original intent.
-    - Be specific and direct.
-    - Define only one primary task.
-    - Avoid vague verbs like:
-    "help", "discuss", "talk about", "tell".
-    - Prefer verbs like:
-    "Write", "Analyze", "Generate",
-    "Summarize", "Extract", "Classify",
-    "Design", "Explain", "Compare".
-    - If the task is vague, infer the most reasonable actionable instruction.
-    - Do not add constraints, formatting, examples, or explanations.
-    - Be concise. Stay under {Estimation_Tokens} tokens.
-    - No preamble. No explanation. Structured output only.
-    """
+2. Instruction: The precise directive telling the LLM exactly what to produce.
+   - Start with a strong action verb: Generate, Analyze, Write, Extract, Compare, Design, Evaluate.
+   - Include quantity, scope, and output type from the goal.
+   - Preserve all specific details including numbers and formats.
+
+3. Action Verb: The single leading verb from the instruction.
+
+4. Output Indicator: The exact structure the response must follow.
+   - Define every field the output must contain.
+   - Be specific: "For each item provide: Name, Description, Market Opportunity, Implementation Steps, Estimated Capital Required."
+   - If the task is a list, specify how each list item must be structured.
+
+Rules:
+- One role, one instruction, one output indicator only.
+- Do not add constraints, examples, or context.
+- Do not use vague verbs: help, discuss, talk about, tell, explore.
+- No preamble. No explanation. Structured output only.
+"""
 
     messages = [
         ("system", system_prompt),
@@ -53,7 +55,7 @@ def Instruction(query, Estimation_Tokens):
 
     try:
         response = response_structure.invoke(messages)
-        combined_response = f"Instruction: {response.instruction}\nAction Verb: {response.action_verb}"
+        combined_response = f"Role: {response.role}\nInstruction: {response.instruction}\nAction Verb: {response.action_verb}\nOutput Indicator: {response.output_indicator}"
         if len(combined_response) < 20:
             print("Length of the response is too low")
             return False

@@ -36,6 +36,7 @@ def Deterministic_Constraints(complexity, tokens_required, query_output, example
 
     trigger_map = {
         "complexity_high": complexity >= 7,
+        "complexity_mid": complexity >= 5 and complexity < 7,
         "complexity_low": complexity <= 3,
         "query_type_factual": query_type == "factual",
         "query_type_creative": query_type == "creative",
@@ -81,15 +82,29 @@ def assembler(instruction, context_output, examples_output, query_output, constr
 
     constraints_text = "\n".join([f"- {c}" for c in constraints])
 
+    role_clean = None
+    output_indicator_clean = None
+
+    if instruction:
+        for line in instruction.split("\n"):
+            if line.startswith("Role:"):
+                role_clean = line.split(":", 1)[1].strip()
+            if line.startswith("Instruction:"):
+                instruction_clean = line.split(":", 1)[1].strip()
+            if line.startswith("Output Indicator:"):
+                output_indicator_clean = line.split(":", 1)[1].strip()
+
     sections = []
+    if role_clean:
+        sections.append(f"{role_clean}")
     sections.append(f"Instruction:\n{instruction_clean}")
     sections.append(f"Context:\n{context_output}")
-
     if examples_needed and examples_clean:
         sections.append(f"Examples:\n{examples_clean}")
-
-    sections.append(f"Query:\n{query_clean}")
+    if output_indicator_clean:
+        sections.append(f"Output Format:\n{output_indicator_clean}")
     sections.append(f"Constraints:\n{constraints_text}")
+    sections.append(f"Query:\n{query_clean}")
 
     optimized_prompt = "\n\n".join(sections)
     return optimized_prompt
@@ -108,4 +123,3 @@ if __name__ == "__main__":
         context_output = context(response, tokens_required)
         prompt = assembler(instruction, context_output, examples_output, query_output, constraints)
         print(prompt)
-        
